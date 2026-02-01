@@ -1,0 +1,18 @@
+[theme]
+primaryColor = "#0A66C2"
+backgroundColor = "#FFFFFF"
+secondaryBackgroundColor = "#F3F6F8"
+textColor = "#000000"
+font = "sans serif"
+
+[server]
+headless = true
+enableCORS = false
+port = 8501
+
+[ui]
+hideTopBar = false
+
+# Reduce default padding
+[client]
+toolbarMode = "minimal"

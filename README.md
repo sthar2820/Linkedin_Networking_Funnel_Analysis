@@ -249,8 +249,6 @@ MIT License - Feel free to use this framework for your own LinkedIn analytics
 
 **Your Name**
 - GitHub: [@sthar2820](https://github.com/sthar2820)
-- LinkedIn: [Your Profile]
-- Portfolio: [Your Website]
 
 ---
 

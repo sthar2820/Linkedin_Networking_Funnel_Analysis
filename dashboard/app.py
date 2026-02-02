@@ -312,14 +312,14 @@ def main():
         ), unsafe_allow_html=True)
     
     with col2:
-        # Calculate overall efficiency
-        overall_efficiency = (funnel_metrics['outcomes'] / funnel_metrics['invitations_sent'] * 100) if funnel_metrics['invitations_sent'] > 0 else 0
+        # Calculate overall efficiency - outcomes per connection made
+        overall_efficiency = (funnel_metrics['outcomes'] / funnel_metrics['connections_made'] * 100) if funnel_metrics['connections_made'] > 0 else 0
         
         st.markdown(f"""
         <div class='info-box'>
         <h3 style='color: #057642; margin-top: 0;'>Overall Efficiency</h3>
         <p style='font-size: 2.5rem; font-weight: 700; color: #057642; margin: 1rem 0;'>{overall_efficiency:.2f}%</p>
-        <p>Every 100 connection requests result in approximately <strong>{int(overall_efficiency * 100 / 100)}</strong> meaningful professional outcomes.</p>
+        <p>Every 100 connections made result in approximately <strong>{int(overall_efficiency)}</strong> meaningful professional outcomes.</p>
         </div>
         """, unsafe_allow_html=True)
     

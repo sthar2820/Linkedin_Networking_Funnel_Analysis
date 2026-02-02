@@ -214,41 +214,49 @@ def main():
             st.plotly_chart(fig_days, use_container_width=True)
         
         with col2:
-            # Hour of day analysis
-            hour_counts = data['messages']['hour'].value_counts().sort_index()
+            # Outcome analysis - vertical bar chart
+            outcome_data = {
+                'Outcome Type': ['Referrals', 'Interviews', 'Positive Sentiment', 'Negative Sentiment'],
+                'Count': [
+                    data['messages']['has_referral_keyword'].sum() if 'has_referral_keyword' in data['messages'].columns else 0,
+                    data['messages']['has_interview_keyword'].sum() if 'has_interview_keyword' in data['messages'].columns else 0,
+                    data['messages']['has_positive_keyword'].sum() if 'has_positive_keyword' in data['messages'].columns else 0,
+                    data['messages']['has_negative_keyword'].sum() if 'has_negative_keyword' in data['messages'].columns else 0
+                ],
+                'Color': ['#057642', '#0A66C2', '#4CAF50', '#FF6B6B']
+            }
             
-            fig_hours = go.Figure(data=[go.Scatter(
-                x=hour_counts.index,
-                y=hour_counts.values,
-                mode='lines+markers',
-                line=dict(color='#0A66C2', width=3),
-                marker=dict(size=8),
-                fill='tozeroy',
-                fillcolor='rgba(10, 102, 194, 0.1)'
+            fig_outcomes = go.Figure(data=[go.Bar(
+                x=outcome_data['Outcome Type'],
+                y=outcome_data['Count'],
+                marker=dict(color=outcome_data['Color']),
+                text=outcome_data['Count'],
+                textposition='outside'
             )])
             
-            fig_hours.update_layout(
-                title='Message Activity by Hour of Day',
-                xaxis_title='Hour (24h format)',
-                yaxis_title='Message Count',
+            fig_outcomes.update_layout(
+                title='Outcome Signals in Messages',
+                xaxis_title='Outcome Type',
+                yaxis_title='Count',
                 height=350,
                 margin=dict(l=20, r=20, t=40, b=20),
                 paper_bgcolor='rgba(0,0,0,0)',
-                plot_bgcolor='rgba(0,0,0,0)'
+                plot_bgcolor='rgba(0,0,0,0)',
+                showlegend=False
             )
             
-            st.plotly_chart(fig_hours, use_container_width=True)
+            st.plotly_chart(fig_outcomes, use_container_width=True)
         
         # Timing insights
         peak_day = day_counts.idxmax()
-        peak_hour = hour_counts.idxmax()
+        total_outcomes = sum(outcome_data['Count'])
         
         st.markdown(f"""
         <div class='insight-card'>
-        <h4 style='color: #0A66C2; margin-top: 0;'>Optimal Timing</h4>
+        <h4 style='color: #0A66C2; margin-top: 0;'>Key Insights</h4>
         <p><strong>Peak Day:</strong> {peak_day} sees the highest message activity.</p>
-        <p><strong>Peak Hour:</strong> {peak_hour}:00 - {(peak_hour+1)%24}:00 is the most active time.</p>
-        <p><em>Consider timing your outreach during these high-activity windows for better visibility.</em></p>
+        <p><strong>Total Positive Signals:</strong> {total_outcomes} outcome indicators detected in conversations.</p>
+        <p><em>Focus on building relationships that show referral and interview signals.</em></p>
         </div>
         """, unsafe_allow_html=True)
     

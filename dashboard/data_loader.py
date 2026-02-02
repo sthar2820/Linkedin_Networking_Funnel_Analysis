@@ -67,13 +67,21 @@ class MetricsCalculator:
         messages_you_sent = messages_df[messages_df['from'] == user_name]
         unique_people_messaged = messages_you_sent['to'].nunique() if len(messages_you_sent) > 0 else 0
         
-        # Positive outcomes (messages with referral/interview keywords)
+        # Positive outcomes (unique conversations with referral/interview keywords)
         outcomes = 0
         if 'has_referral_keyword' in messages_df.columns and 'has_interview_keyword' in messages_df.columns:
-            outcomes = len(messages_df[
-                (messages_df['has_referral_keyword'] == 1) | 
-                (messages_df['has_interview_keyword'] == 1)
-            ])
+            if 'conversation_id' in messages_df.columns:
+                # Count unique conversations, not individual messages
+                outcomes = messages_df[
+                    (messages_df['has_referral_keyword'] == 1) | 
+                    (messages_df['has_interview_keyword'] == 1)
+                ]['conversation_id'].nunique()
+            else:
+                # Fallback to message count if no conversation_id
+                outcomes = len(messages_df[
+                    (messages_df['has_referral_keyword'] == 1) | 
+                    (messages_df['has_interview_keyword'] == 1)
+                ])
         
         return {
             'invitations_sent': invitations_sent,
@@ -122,7 +130,7 @@ class MetricsCalculator:
     
     @staticmethod
     def calculate_engagement_metrics(messages_df):
-        """Calculate engagement quality metrics"""
+        """Calculate engagement quality metrics - count unique conversations, not individual messages"""
         
         metrics = {
             'total_messages': len(messages_df),
@@ -132,9 +140,34 @@ class MetricsCalculator:
             'negative_sentiment': 0
         }
         
-        if 'has_referral_keyword' in messages_df.columns:
-            metrics['has_referrals'] = messages_df['has_referral_keyword'].sum()
+        # Count unique conversations with outcome keywords, not total messages
+        if 'conversation_id' in messages_df.columns:
+            if 'has_referral_keyword' in messages_df.columns:
+                metrics['has_referrals'] = messages_df[messages_df['has_referral_keyword'] == 1]['conversation_id'].nunique()
+            
+            if 'has_interview_keyword' in messages_df.columns:
+                metrics['has_interviews'] = messages_df[messages_df['has_interview_keyword'] == 1]['conversation_id'].nunique()
+            
+            if 'has_positive_keyword' in messages_df.columns:
+                metrics['positive_sentiment'] = messages_df[messages_df['has_positive_keyword'] == 1]['conversation_id'].nunique()
+            
+            if 'has_negative_keyword' in messages_df.columns:
+                metrics['negative_sentiment'] = messages_df[messages_df['has_negative_keyword'] == 1]['conversation_id'].nunique()
+        else:
+            # Fallback: count messages if conversation_id not available
+            if 'has_referral_keyword' in messages_df.columns:
+                metrics['has_referrals'] = messages_df['has_referral_keyword'].sum()
+            
+            if 'has_interview_keyword' in messages_df.columns:
+                metrics['has_interviews'] = messages_df['has_interview_keyword'].sum()
+            
+            if 'has_positive_keyword' in messages_df.columns:
+                metrics['positive_sentiment'] = messages_df['has_positive_keyword'].sum()
+            
+            if 'has_negative_keyword' in messages_df.columns:
+                metrics['negative_sentiment'] = messages_df['has_negative_keyword'].sum()
         
+        return metrics
         if 'has_interview_keyword' in messages_df.columns:
             metrics['has_interviews'] = messages_df['has_interview_keyword'].sum()
         
